@@ -5,7 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Personal Website</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
@@ -19,6 +22,10 @@
       /* Increase font size */
       text-align: center;
       /* Center the text */
+    }
+
+    body {
+      background-color: black;
     }
   </style>
 </head>
@@ -72,8 +79,88 @@
       </div>
     </div>
   </nav>
-  <script src="sketch.js" type="module"></script>
+  <style>
+    .navbar-toggler {
+      border-color: white;
+      background-color: white;
+      /* Optional: make the border invisible */
+    }
 
+    .navbar-toggler-icon {
+      color: white;
+      /* Change this to your desired color */
+    }
+  </style>
+  <script type="module">
+    var num = 2000;
+    var noiseScale = 500, noiseStrength = 1;
+    var particles = [num];
+
+    window.setup = function () {
+      let canvas = createCanvas(windowWidth, windowHeight);
+      canvas.position(0, 0);
+      noStroke();
+      for (let i = 0; i < num; i++) {
+        //x value start slightly outside the right of canvas, z value how close to viewer
+        var loc = createVector(random(width * 1.2), random(height), 2);
+        var angle = 0; //any value to initialize
+        var dir = createVector(cos(angle), sin(angle));
+        var speed = random(0.5, 2);
+        // var speed = random(5,map(mouseX,0,width,5,20));   // faster
+        particles[i] = new Particle(loc, dir, speed);
+      }
+    }
+
+    window.windowResized = function () {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+
+    window.draw = function () {
+      // background(0);
+      fill(0, 10);
+      noStroke();
+      rect(0, 0, width, height);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].run();
+      }
+    }
+
+    class Particle {
+      constructor(_loc, _dir, _speed) {
+        this.loc = _loc;
+        this.dir = _dir;
+        this.speed = _speed;
+        // var col;
+      }
+      run() {
+        this.move();
+        this.checkEdges();
+        this.update();
+      }
+      move() {
+        let angle = noise(this.loc.x / noiseScale, this.loc.y / noiseScale, frameCount / noiseScale) * TWO_PI * noiseStrength; //0-2PI
+        this.dir.x = cos(angle);
+        this.dir.y = sin(angle);
+        var vel = this.dir.copy();
+        var d = 1;  //direction change 
+        vel.mult(this.speed * d); //vel = vel * (speed*d)
+        this.loc.add(vel); //loc = loc + vel
+      }
+      checkEdges() {
+        //float distance = dist(width/2, height/2, loc.x, loc.y);
+        //if (distance>150) {
+        if (this.loc.x < 0 || this.loc.x > width || this.loc.y < 0 || this.loc.y > height) {
+          this.loc.x = random(width * 1.2);
+          this.loc.y = random(height);
+        }
+      }
+      update() {
+        fill(255);
+        ellipse(this.loc.x, this.loc.y, this.loc.z);
+      }
+    }
+
+  </script>
 
 </body>
 
